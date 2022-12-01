@@ -1,0 +1,9 @@
+# Ignore everything
+*
+# Don't ignore .gitignore and readme
+!.gitignore
+!README.md
+# Do not ignore *.c and *.py files. Same for text .txt files
+!*.c
+!*.py
+!*.txt
