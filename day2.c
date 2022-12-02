@@ -12,6 +12,11 @@
 #define OWN_PAPER 'Y'
 #define OWN_SCISSORS 'Z'
 
+//New constants for the second part of the line
+#define DO_WIN 'Z'
+#define DO_DRAW 'Y'
+#define DO_LOSE 'X'
+
 //Constants for points
 #define VICTORY 6
 #define DRAW 3
@@ -24,6 +29,8 @@
 
 int get_total_points (char opponents_hand, char your_hand);
 int get_game_points (char opponents_hand, char your_hand);
+int get_total_points_second_part (char opponents_hand, char result);
+char get_needed_hand (char opponents_hand, char result);
 
 int get_total_points (char opponents_hand, char your_hand){
 	int total_points = 0, game_points = 0;
@@ -87,8 +94,79 @@ int get_game_points (char opponents_hand, char your_hand){
 			}
 			break;
 	}
-	printf ("Line points for the result are: %d\n", game_points);
+	printf ("Game points for this line are: %d\n", game_points);
 	return (game_points);
+}
+
+int get_total_points_second_part (char opponents_hand, char result){
+	int total_points = 0, own_hand_points = 0;
+	char needed_hand;
+	//First count the points for the result, that you're already told
+	if (result == DO_WIN)
+		total_points += VICTORY;
+	else if (result == DO_DRAW)
+		total_points += DRAW;
+	else if (result == DO_LOSE)
+		total_points += LOSS;
+	printf ("Points given for this line's game result (second version) are %d\n", total_points);
+	//Now calculate your needed hand and the points it will be worth
+	needed_hand = get_needed_hand (opponents_hand, result);
+	if (needed_hand == OWN_ROCK)
+		own_hand_points = ROCK;
+	else if (needed_hand == OWN_PAPER)
+		own_hand_points = PAPER;
+	else if (needed_hand == OWN_SCISSORS)
+		own_hand_points = SCISSORS;
+	total_points += own_hand_points;
+	printf ("Points give for your own hand this line are %d, accumulated %d points\n", own_hand_points, total_points);
+	return (total_points);
+}
+
+char get_needed_hand (char opponents_hand, char result){
+	char hand;
+	switch (opponents_hand){
+		case OPPONENT_ROCK:
+			switch (result){
+				case DO_WIN:
+					hand = OWN_PAPER;
+					break;
+				case DO_DRAW:	
+					hand = OWN_ROCK;
+					break;
+				case DO_LOSE:	
+					hand = OWN_SCISSORS;
+					break;
+			}
+			break;
+		case OPPONENT_PAPER:
+			switch (result){
+				case DO_WIN:
+					hand = OWN_SCISSORS;
+					break;
+				case DO_DRAW:	
+					hand = OWN_PAPER;
+					break;
+				case DO_LOSE:	
+					hand = OWN_ROCK;
+					break;
+			}
+			break;
+		case OPPONENT_SCISSORS:
+			switch (result){
+				case DO_WIN:
+					hand = OWN_ROCK;
+					break;
+				case DO_DRAW:	
+					hand = OWN_SCISSORS;
+					break;
+				case DO_LOSE:	
+					hand = OWN_PAPER;
+					break;
+			}
+			break;
+	}
+	printf ("Needed hand for the second game is %c\n", hand);
+	return (hand);
 }
 
 int main(void)
@@ -98,7 +176,8 @@ int main(void)
     size_t len = 0;
     ssize_t read;
     int points = 0; //Full points of all the games included in the file
-
+    int points_secondpart = 0; //Points for the second version of the game
+    
     fp = fopen(FILENAME , "r");
     if (fp == NULL)
         exit(EXIT_FAILURE);
@@ -113,10 +192,13 @@ int main(void)
         printf("Retrieved line of length %zu:\n", read);
         printf("%s", line);
 	points += get_total_points (opponent, own);
-	printf ("Accumulated result so far is %d points\n\n", points);
+	printf ("Accumulated result so far is %d points\n", points);
+	points_secondpart += get_total_points_second_part (opponent, own);
+	printf ("Accumulated result in the second version so far is %d points\n", points_secondpart);
     }
 
-    printf ("\nTotal points counted are %d\n", points);
+    printf ("\nTotal points counted are %d (first version)\n", points);
+    printf ("\nTotal points counted are %d (second version)\n", points_secondpart);
 
     fclose(fp);
     if (line)
