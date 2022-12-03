@@ -9,6 +9,7 @@
 
 void split_line (char *line, char *subline1, char *subline2);
 char lookup_common_char (const char *subline1, const char *subline2);
+char lookup_common_char3 (const char *line1, const char *line2, const char *line3);
 
 void split_line (char *line, char *subline1, char *subline2){
 	int len = strlen (line), i;
@@ -49,19 +50,32 @@ char lookup_common_char (const char *subline1, const char *subline2){
 	return (common_char);
 }
 
+char lookup_common_char3 (const char *line1, const char *line2, const char *line3){
+	char common_char = '\0';
+	printf ("Common character found was %c\n", common_char);
+	return (common_char);
+}
 int main(void)
 {
 	FILE * fp;
 	char * line = NULL;
 	size_t len = 0;
 	ssize_t read;
-	int total_points = 0;
+	int total_points = 0, num_lines = 0;
+	char ** lines;
+
+	lines = malloc (sizeof(char*) * LENGTH); 
+	for (int i = 0; i < LENGTH; i ++)
+		*(lines + i) = malloc (sizeof(char) * LINE);
+
 
 	fp = fopen(FILENAME, "r");
 	if (fp == NULL)
 		exit(EXIT_FAILURE);
 
 	while ((read = getline(&line, &len, fp)) != -1) {
+		strcpy (*(lines + num_lines), line);
+		num_lines ++;
 		printf("Retrieved line of length %zu:\n", read);
 		printf("%s", line);
 		int line_points = 0;
@@ -85,6 +99,8 @@ int main(void)
 
 		printf ("Line points given for common char %c are %d. Accumulated points are %d\n", common_char, line_points, total_points);
 
+
+
 		if (subline1)
 			free (subline1);
 		if (subline2)
@@ -92,8 +108,19 @@ int main(void)
 	}
 
 	printf ("\nTotal points are: %d\n", total_points);
+
+	//Second part of the game to be implemented here
+	//Create new functions that look up common char in three lines
+
+	/*for (int i = 0; i < num_lines; i ++)
+		printf ("%s", *(lines + i));*/
 	fclose(fp);
 	if (line)
 		free(line);
+	for (int i = 0; i < LENGTH; i ++)
+		if (*(lines + i))
+			free (*(lines + i));
+	if (lines)
+		free (lines);
 	exit(EXIT_SUCCESS);
 }
